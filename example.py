@@ -1,3 +1,4 @@
+import os
 import discord
 
 from discord.utils import get
@@ -102,4 +103,4 @@ async def leave(ctx):
 
 
 
-bot.run(' ')
+bot.run(os.environ['TOKEN'])
