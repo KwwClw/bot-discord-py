@@ -4,3 +4,4 @@
 .replit
 poetry.lock
 pyproject.toml
+.env
