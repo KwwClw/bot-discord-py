@@ -1,0 +1,7 @@
+### Example user template
+
+.idea
+*.iml
+out
+gen
+.env
