@@ -20,25 +20,25 @@ async def on_ready():
 
 @bot.event
 async def on_voice_state_update(member, before, after):
-    if before.channel != after.channel and after.channel is not None:
-        thai_timezone = pytz.timezone('Asia/Bangkok')
-        timestamp_utc = datetime.utcnow()
-        timestamp_thai = timestamp_utc.replace(tzinfo=pytz.utc).astimezone(thai_timezone)
+    notification_channel = bot.get_channel(1134149073662922753)  # Replace with your channel ID
 
-        join = discord.Embed(
-            title='Joined',
-            description=(f'{member.mention} has joined {after.channel.name}.'),
-            color=0x3559E0,
-            # timestamp=timestamp_thai
-        )
+    thai_timezone = pytz.timezone('Asia/Bangkok')
+    timestamp_utc = datetime.utcnow()
+    timestamp_thai = timestamp_utc.replace(tzinfo=pytz.utc).astimezone(thai_timezone)
 
-        formatted_timestamp = timestamp_thai.strftime("%A at %I:%M %p")
-        join.set_footer(text=formatted_timestamp)
+    join = discord.Embed(
+        title='Joined',
+        description=(f'{member.mention} has joined {after.channel.name}.'),
+        color=0x3559E0,
+    )
+    formatted_timestamp = timestamp_thai.strftime("%A at %I:%M %p")
+    join.set_footer(text=formatted_timestamp)
 
-        # You can now send the embed to a channel or user
-        channel_id = 1134149073662922753  # Replace with your channel ID
-        channel = bot.get_channel(channel_id)
-        await channel.send(embed=join)
+    if notification_channel is not None and before.channel != after.channel:
+        if after.channel is not None:
+            await notification_channel.send(embed=join)
+        elif before.channel is not None:
+            await notification_channel.send(f'{member} has left {before.channel.name}.')
 
 @bot.event
 async def on_message(message):
