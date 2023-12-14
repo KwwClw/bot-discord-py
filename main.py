@@ -12,6 +12,11 @@ bot = commands.Bot(command_prefix='k!', intents=discord.Intents.all())
 load_dotenv()
 TOKEN = os.environ.get('TOKEN')
 
+thai_timezone = pytz.timezone('Asia/Bangkok')
+timestamp_utc = datetime.utcnow()
+timestamp_thai = timestamp_utc.replace(tzinfo=pytz.utc).astimezone(thai_timezone)
+formatted_timestamp = timestamp_thai.strftime("%A at %I:%M %p")
+
 @bot.event
 async def on_ready():
     print(f"Logged in as {bot.user.name}")
@@ -21,10 +26,6 @@ async def on_ready():
 @bot.event
 async def on_voice_state_update(member, before, after):
     notification_channel = bot.get_channel(1134149073662922753)
-    thai_timezone = pytz.timezone('Asia/Bangkok')
-    timestamp_utc = datetime.utcnow()
-    timestamp_thai = timestamp_utc.replace(tzinfo=pytz.utc).astimezone(thai_timezone)
-    formatted_timestamp = timestamp_thai.strftime("%A at %I:%M %p")
 
     if notification_channel is None:
         return
@@ -73,8 +74,8 @@ async def helpcommand(interaction):
         title='Help',
         description='Bot Commands',
         color=0x3559E0,
-        timestamp=discord.utils.utcnow()
     )
+    helpembed.set_footer(text=formatted_timestamp)
     await interaction.response.send_message(embed=helpembed)
 
 keep_alive()
