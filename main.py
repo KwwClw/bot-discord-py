@@ -13,7 +13,7 @@ TOKEN = os.environ.get('TOKEN')
 @bot.event
 async def on_ready():
     print(f"Logged in as {bot.user.name}")
-    await bot.tree.sync()
+    synced = await bot.tree.sync()
     print(f"{len(synced)} command(s)")
 
 @bot.event
@@ -42,8 +42,8 @@ async def hello(ctx):
     await ctx.send(f"Hello {ctx.author.name}!")
 
 @bot.tree.command(name='hellobot', description='Replies with Hello')
-async def hellocommand(interaction):
-    await interaction.response.send_message(f"Hello {interaction.author.name}!")
+async def hellocommand(ctx):
+    await ctx.send(f"Hello {ctx.author.name}!")
 
 # @bot.tree.command(name='help', description='help command')
 # async def helpcommand(interaction):
