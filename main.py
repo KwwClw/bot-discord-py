@@ -20,31 +20,35 @@ async def on_ready():
 
 @bot.event
 async def on_voice_state_update(member, before, after):
-    notification_channel = bot.get_channel(1134149073662922753)  # Replace with your channel ID
-
+    notification_channel = bot.get_channel(1134149073662922753)
     thai_timezone = pytz.timezone('Asia/Bangkok')
     timestamp_utc = datetime.utcnow()
     timestamp_thai = timestamp_utc.replace(tzinfo=pytz.utc).astimezone(thai_timezone)
     formatted_timestamp = timestamp_thai.strftime("%A at %I:%M %p")
 
-    join = discord.Embed(
-        title='Joined',
-        description=f'{member} has joined {after.channel.name}.',
-        color=0x3559E0,
-    )
-    join.set_footer(text=formatted_timestamp)
+    if notification_channel is not None and before.channel != after.channel:
+        return
 
-    left = discord.Embed(
-        title='Left',
-        description=f'{member} has left {before.channel.name}.',
-        color=0x3559E0,
-    )
-    left.set_footer(text=formatted_timestamp)
+    if before.channel is not None and after.channel is not None:
+        # Member switched channels
+        return
 
     if notification_channel is not None and before.channel != after.channel:
-        if after.channel is not None:
+        if notification_channel is not None:
+            join = discord.Embed(
+                title='Joined',
+                description=f'{member} has joined {after.channel.name}.',
+                color=0x3559E0,
+            )
+            join.set_footer(text=formatted_timestamp)
             await notification_channel.send(embed=join)
         elif before.channel is not None:
+            left = discord.Embed(
+                title='Left',
+                description=f'{member} has left {before.channel.name}.',
+                color=0x3559E0,
+            )
+            left.set_footer(text=formatted_timestamp)
             await notification_channel.send(embed=left)
 
 @bot.event
