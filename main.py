@@ -39,6 +39,7 @@ async def on_voice_state_update(member, before, after):
             )
             join.set_footer(text=formatted_timestamp)
             await notification_channel.send(embed=join)
+            print(formatted_timestamp)
         elif before.channel is not None:
             left = discord.Embed(
                 title='Left',
@@ -47,6 +48,7 @@ async def on_voice_state_update(member, before, after):
             )
             left.set_footer(text=formatted_timestamp)
             await notification_channel.send(embed=left)
+            print(formatted_timestamp)
 
 @bot.event
 async def on_message(message):
@@ -73,7 +75,7 @@ async def helpcommand(interaction):
     timestamp_utc = datetime.utcnow()
     timestamp_thai = timestamp_utc.replace(tzinfo=pytz.utc).astimezone(thai_timezone)
     formatted_timestamp = timestamp_thai.strftime("%A at %I:%M %p")
-    
+
     helpembed = discord.Embed(
         title='Help',
         description='Bot Commands',
