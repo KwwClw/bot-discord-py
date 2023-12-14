@@ -25,20 +25,27 @@ async def on_voice_state_update(member, before, after):
     thai_timezone = pytz.timezone('Asia/Bangkok')
     timestamp_utc = datetime.utcnow()
     timestamp_thai = timestamp_utc.replace(tzinfo=pytz.utc).astimezone(thai_timezone)
+    formatted_timestamp = timestamp_thai.strftime("%A at %I:%M %p")
 
     join = discord.Embed(
         title='Joined',
-        description=(f'{member.mention} has joined {after.channel.name}.'),
+        description=f'{member} has joined {after.channel.name}.',
         color=0x3559E0,
     )
-    formatted_timestamp = timestamp_thai.strftime("%A at %I:%M %p")
     join.set_footer(text=formatted_timestamp)
+
+    left = discord.Embed(
+        title='Left',
+        description=f'{member} has left {before.channel.name}.',
+        color=0x3559E0,
+    )
+    left.set_footer(text=formatted_timestamp)
 
     if notification_channel is not None and before.channel != after.channel:
         if after.channel is not None:
             await notification_channel.send(embed=join)
         elif before.channel is not None:
-            await notification_channel.send(f'{member} has left {before.channel.name}.')
+            await notification_channel.send(embed=left)
 
 @bot.event
 async def on_message(message):
