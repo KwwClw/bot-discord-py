@@ -13,6 +13,8 @@ TOKEN = os.environ.get('TOKEN')
 @bot.event
 async def on_ready():
     print(f"Logged in as {bot.user.name}")
+    await bot.tree.sync()
+    print(f"{len(synced)} command(s)")
 
 @bot.event
 async def on_voice_state_update(member, before, after):
@@ -24,19 +26,35 @@ async def on_voice_state_update(member, before, after):
         elif before.channel is not None:
             await notification_channel.send(f'{member} has left {before.channel.name}.')
 
+@bot.event
+async def on_message(message):
+    mes = message.content
+    if mes == 'hello':
+        await message.channel.send("Hello It's me!")
+
+    elif mes == 'hi bot':
+        await message.channel.send("Hello, " + str(message.author.name))
+
+    await bot.process_commands(message)
+
 @bot.command()
 async def hello(ctx):
     await ctx.send(f"Hello {ctx.author.name}!")
 
-@bot.tree.command(name = 'help', description = 'help command')
-async def helpcommand(interaction):
-    helpembed = discord.Embed(
-        title = 'Help',
-        description = 'Bot Commands',
-        color = 0x3559E0,
-        timestamp = discord.utils.utcnow()
-    )
-    await interaction.send_send(embed = helpembed)
+@bot.tree.command(name='hellobot', description='Replies with Hello')
+async def hellocommand(interaction):
+    await interaction.response.send_message(f"Hello {interaction.author.name}!")
+
+# @bot.tree.command(name='help', description='help command')
+# async def helpcommand(interaction):
+#     helpembed = discord.Embed(
+#         title='Help',
+#         description='Bot Commands',
+#         color=0x3559E0,
+#         timestamp=discord.utils.utcnow()
+#     )
+#     await interaction.send(embed = helpembed)
+
 
 # @bot.event
 # async def on_member_joined(member):
