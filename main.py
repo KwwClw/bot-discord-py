@@ -22,16 +22,17 @@ async def on_ready():
 async def on_voice_state_update(member, before, after):
     if before.channel != after.channel and after.channel is not None:
         thai_timezone = pytz.timezone('Asia/Bangkok')
-        timestamp = datetime.utcnow()
+        timestamp_utc = datetime.utcnow()
+        timestamp_thai = timestamp_utc.replace(tzinfo=pytz.utc).astimezone(thai_timezone)
 
         join = discord.Embed(
             title='Joined',
             description=(f'{member.mention} has joined {after.channel.name}.'),
             color=0x3559E0,
-            # timestamp=timestamp
+            timestamp=timestamp_utc
         )
 
-        formatted_timestamp = timestamp.strftime("%A at %I:%M %p")
+        formatted_timestamp = timestamp_utc.strftime("%A at %I:%M %p")
         join.set_footer(text=formatted_timestamp)
 
         # You can now send the embed to a channel or user
