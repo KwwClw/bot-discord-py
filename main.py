@@ -26,15 +26,12 @@ async def on_voice_state_update(member, before, after):
     timestamp_thai = timestamp_utc.replace(tzinfo=pytz.utc).astimezone(thai_timezone)
     formatted_timestamp = timestamp_thai.strftime("%A at %I:%M %p")
 
-    if notification_channel is not None and before.channel != after.channel:
+    if notification_channel is None:
         return
 
-    if before.channel is not None and after.channel is not None:
-        # Member switched channels
-        return
-
-    if notification_channel is not None and before.channel != after.channel:
-        if notification_channel is not None:
+    if before.channel != after.channel:
+        # Member joined or left a voice channel
+        if after.channel is not None:
             join = discord.Embed(
                 title='Joined',
                 description=f'{member} has joined {after.channel.name}.',
