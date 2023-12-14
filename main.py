@@ -29,10 +29,10 @@ async def on_voice_state_update(member, before, after):
             title='Joined',
             description=(f'{member.mention} has joined {after.channel.name}.'),
             color=0x3559E0,
-            timestamp=timestamp_utc
+            # timestamp=timestamp_thai
         )
 
-        formatted_timestamp = timestamp_utc.strftime("%A at %I:%M %p")
+        formatted_timestamp = timestamp_thai.strftime("%A at %I:%M %p")
         join.set_footer(text=formatted_timestamp)
 
         # You can now send the embed to a channel or user
