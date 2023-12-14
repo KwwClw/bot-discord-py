@@ -25,7 +25,7 @@ async def on_ready():
 
 @bot.event
 async def on_voice_state_update(member, before, after):
-    notification_channel = bot.get_channel(1134149073662922753)
+    notification_channel = bot.get_channel(1184790363337130074)
 
     if notification_channel is None:
         return
