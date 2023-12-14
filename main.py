@@ -4,6 +4,7 @@ from dotenv import load_dotenv
 from discord.ext import commands
 from discord import app_commands
 from keep_alive import keep_alive
+from datetime import datetime
 
 bot = commands.Bot(command_prefix='k!', intents=discord.Intents.all())
 
@@ -18,13 +19,24 @@ async def on_ready():
 
 @bot.event
 async def on_voice_state_update(member, before, after):
-    notification_channel = bot.get_channel(1134149073662922753)
+    if before.channel != after.channel and after.channel is not None:
+        thai_timezone = pytz.timezone('Asia/Bangkok')
+        timestamp = datetime.utcnow()
 
-    if notification_channel is not None and before.channel != after.channel:
-        if after.channel is not None:
-            await notification_channel.send(f'{member} has joined {after.channel.name}.')
-        elif before.channel is not None:
-            await notification_channel.send(f'{member} has left {before.channel.name}.')
+        join = discord.Embed(
+            title='Joined',
+            description=(f'{member.mention} has joined {after.channel.name}.'),
+            color=0x3559E0,
+            # timestamp=timestamp
+        )
+
+        formatted_timestamp = timestamp.strftime("%A at %I:%M %p")
+        join.set_footer(text=formatted_timestamp)
+
+        # You can now send the embed to a channel or user
+        channel_id = 1134149073662922753  # Replace with your channel ID
+        channel = bot.get_channel(channel_id)
+        await channel.send(embed=join)
 
 @bot.event
 async def on_message(message):
@@ -53,12 +65,7 @@ async def helpcommand(interaction):
         color=0x3559E0,
         timestamp=discord.utils.utcnow()
     )
-    await interaction.send(embed=helpembed)
-
-
-# @bot.event
-# async def on_member_joined(member):
-#     chanel = bot.get_channel(1134149073662922753)
+    await interaction.response.send_message(embed=helpembed)
 
 keep_alive()
 
