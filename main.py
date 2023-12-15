@@ -1,4 +1,5 @@
 import os
+import time
 import pytz
 import discord
 from dotenv import load_dotenv
@@ -86,10 +87,16 @@ async def helpcommand(interaction):
 
 @bot.tree.command(name='ping', description='Pong')
 async def ping(interaction):
+    start_time = time.time()
+    message = await interaction.channel.send("🏓Pinging...")
+    end_time = time.time()
+    ping_duration = (end_time - start_time) * 1000
+
     pingembed = discord.Embed(
-        title='🏓Pong!',
-        description=f'Ping is {bot.latency * 1000:.2f} ms\n' + f'API Ping is'
+        title='📡 Connection',
+        description=f'Ping is {bot.latency * 1000:.2f} ms\n' + f'API Ping is {ping_duration:.2f} ms'
     )
+    await message.edit(content='🏓Pong!')
     await interaction.response.send_message(embed=pingembed)
 
 keep_alive()
