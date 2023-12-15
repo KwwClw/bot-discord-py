@@ -39,7 +39,7 @@ async def on_voice_state_update(member, before, after):
             )
             join.set_footer(text=formatted_timestamp)
             await notification_channel.send(embed=join)
-            print(formatted_timestamp)
+            # print(formatted_timestamp)
         elif before.channel is not None:
             left = discord.Embed(
                 title='Left',
@@ -48,7 +48,7 @@ async def on_voice_state_update(member, before, after):
             )
             left.set_footer(text=formatted_timestamp)
             await notification_channel.send(embed=left)
-            print(formatted_timestamp)
+            # print(formatted_timestamp)
 
 @bot.event
 async def on_message(message):
@@ -83,6 +83,14 @@ async def helpcommand(interaction):
     )
     helpembed.set_footer(text=formatted_timestamp)
     await interaction.response.send_message(embed=helpembed)
+
+@bot.tree.command(name='ping', description='Pong')
+async def ping(interaction):
+    pingembed = discord.Embed(
+        title='🏓Pong!',
+        description=f'Ping is {bot.latency * 1000:.2f} ms\n' + f'API Ping is'
+    )
+    await interaction.response.send_message(embed=pingembed)
 
 keep_alive()
 
