@@ -117,10 +117,10 @@ async def ping(interaction):
     await interaction.response.send_message(content='🏓Pong!', embed=pingembed, ephemeral=True)
 
 @bot.tree.command(name='play', description='Play your song')
-async def play(ctx, url: str):  # Add type hint for the 'url' parameter
-    # Check if the author is in a voice channel
-    if ctx.author.voice:
-        channel = ctx.author.voice.channel
+async def play(ctx, url: str):
+    # Check if the user who triggered the interaction is in a voice channel
+    if ctx.user.voice:
+        channel = ctx.user.voice.channel
         vc = await channel.connect()
         players[ctx.guild.id] = vc  # Store the voice client in the dictionary
 
@@ -135,7 +135,6 @@ async def play(ctx, url: str):  # Add type hint for the 'url' parameter
         players[ctx.guild.id] = player  # Store the player in the dictionary
     else:
         await ctx.send("You need to be in a voice channel to use this command.")
-
 
 keep_alive()
 
