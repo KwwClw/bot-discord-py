@@ -91,14 +91,9 @@ async def helpcommand(interaction):
     helpembed.set_footer(text=formatted_timestamp)
     await interaction.response.send_message(embed=helpembed)
 
-
 @bot.tree.command(name='ping', description='Pong')
 async def ping(interaction):
     start_time = time.time()
-
-    # Perform some action that simulates network latency, e.g., fetching user data
-    await interaction.author.fetch()
-
     end_time = time.time()
     ping_duration = (end_time - start_time) * 1000
 
@@ -107,8 +102,7 @@ async def ping(interaction):
         description=f'Ping is {bot.latency * 1000:.2f} ms\nAPI Ping is {ping_duration:.2f} ms'
     )
 
-    message = await interaction.channel.send("🏓Pinging...")
-    await message.edit(content='🏓Pong!', embed=pingembed)
+    await interaction.response.send_message(embed=pingembed)
 
 keep_alive()
 
