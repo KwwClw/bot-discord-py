@@ -115,7 +115,7 @@ async def ping(interaction):
 
     await interaction.response.send_message(content='🏓Pong!', embed=pingembed, ephemeral=True)
 
-@bot.tree.command(name='play', description='play your song')
+@bot.tree.command(name='play', description='Play your song')
 async def play(ctx, url):
     if ctx.voice_client is None:
         channel = ctx.author.voice.channel
@@ -126,7 +126,7 @@ async def play(ctx, url):
 
     ydl_opts = {'format': 'bestaudio'}
     with youtube_dl.YoutubeDL(ydl_opts) as ydl:
-        info = ydl.extract_info(url, dowload=False)
+        info = ydl.extract_info(url, download=False)
         url2 = info['formats'][0]['url']
 
     player = vc.play(discord.FFmpegPCMAudio(url2, **ffmpeg_options))
