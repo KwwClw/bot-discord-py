@@ -101,8 +101,7 @@ async def ping(interaction):
         title='📡 Connection',
         description=f'Ping is {bot.latency * 1000:.2f} ms\nAPI Ping is {ping_duration:.2f} ms'
     )
-
-    await interaction.response.send_message(embed=pingembed)
+    await interaction.response.send_message(content='🏓Pong!', embed=pingembed)
 
 keep_alive()
 
