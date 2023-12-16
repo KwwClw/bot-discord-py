@@ -139,7 +139,11 @@ async def play(ctx, url: str):
         }
 
         # Use youtube_dl to extract information about the video
-        ydl_opts = {'format': 'bestaudio', 'verbose': True}
+        ydl_opts = {
+            'format': 'bestaudio',
+            'verbose': True,
+            'extractor': 'youtube'
+        }
         with youtube_dl.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(url, download=False)
             url2 = info['formats'][0]['url']
