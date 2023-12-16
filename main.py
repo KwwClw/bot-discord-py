@@ -13,11 +13,17 @@ bot = commands.Bot(command_prefix='k!', intents=discord.Intents.all())
 load_dotenv()
 TOKEN = os.environ.get('TOKEN')
 
+intents = discord.Intents.default()
+intents.message_content = True
+
 @bot.event
 async def on_ready():
     print(f"Logged in as {bot.user.name}")
     synced = await bot.tree.sync()
-    print(f"{len(synced)} command(s)")
+    if len(synced) <= 1:
+        print(f"{len(synced)} command")
+    else:
+        print(f"{len(synced)} commands")
 
 @bot.event
 async def on_voice_state_update(member, before, after):
@@ -85,17 +91,23 @@ async def helpcommand(interaction):
     helpembed.set_footer(text=formatted_timestamp)
     await interaction.response.send_message(embed=helpembed)
 
+
 @bot.tree.command(name='ping', description='Pong')
 async def ping(interaction):
     start_time = time.time()
-    message = await interaction.channel.send("🏓Pinging...")
+
+    # Perform some action that simulates network latency, e.g., fetching user data
+    await interaction.author.fetch()
+
     end_time = time.time()
     ping_duration = (end_time - start_time) * 1000
 
     pingembed = discord.Embed(
         title='📡 Connection',
-        description=f'Ping is {bot.latency * 1000:.2f} ms\n' + f'API Ping is {ping_duration:.2f} ms'
+        description=f'Ping is {bot.latency * 1000:.2f} ms\nAPI Ping is {ping_duration:.2f} ms'
     )
+
+    message = await interaction.channel.send("🏓Pinging...")
     await message.edit(content='🏓Pong!', embed=pingembed)
 
 keep_alive()
