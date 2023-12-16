@@ -6,3 +6,4 @@ poetry.lock
 pyproject.toml
 .env
 __pycache__/
+replit.txt
