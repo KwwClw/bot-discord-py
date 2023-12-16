@@ -132,6 +132,12 @@ async def play(ctx, url: str):
         vc = await channel.connect()
         players[ctx.guild.id] = {'vc': vc, 'player': None}  # Store the voice client and player in the dictionary
 
+        # Define ffmpeg_options (adjust as needed)
+        ffmpeg_options = {
+            'options': '-vn',
+            'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5',
+        }
+
         # Use youtube_dl to extract information about the video
         ydl_opts = {'format': 'bestaudio'}
         with youtube_dl.YoutubeDL(ydl_opts) as ydl:
