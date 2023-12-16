@@ -121,7 +121,7 @@ async def play(ctx, url: str):
     # Check if the user who triggered the interaction is in a voice channel
     if ctx.user.voice:
         channel = ctx.user.voice.channel
-        vc = await channel.connect()
+        vc = channel.connect()
         players[ctx.guild.id] = vc  # Store the voice client in the dictionary
 
         # Use youtube_dl to extract information about the video
