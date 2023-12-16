@@ -116,7 +116,7 @@ async def ping(interaction):
     await interaction.response.send_message(content='🏓Pong!', embed=pingembed, ephemeral=True)
 
 @bot.tree.command(name='play', description='Play your song')
-async def play(ctx, url):
+async def play(ctx, url: str):
     if ctx.voice_client is None:
         channel = ctx.author.voice.channel
         vc = await channel.connect()
