@@ -19,6 +19,7 @@ intents.message_content = True
 bot = commands.Bot(command_prefix='k!', intents=intents)
 
 players = {}
+ffmpeg_options = {}
 
 @bot.event
 async def on_ready():
@@ -116,21 +117,25 @@ async def ping(interaction):
     await interaction.response.send_message(content='🏓Pong!', embed=pingembed, ephemeral=True)
 
 @bot.tree.command(name='play', description='Play your song')
-async def play(ctx, url: str):
-    if ctx.voice_client is None:
+async def play(ctx, url: str):  # Add type hint for the 'url' parameter
+    # Check if the author is in a voice channel
+    if ctx.author.voice:
         channel = ctx.author.voice.channel
         vc = await channel.connect()
-        players[ctx.guild.id] = vc
+        players[ctx.guild.id] = vc  # Store the voice client in the dictionary
+
+        # Use youtube_dl to extract information about the video
+        ydl_opts = {'format': 'bestaudio'}
+        with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+            info = ydl.extract_info(url, download=False)
+            url2 = info['formats'][0]['url']
+
+        # Create a player and add it to the dictionary
+        player = vc.play(discord.FFmpegPCMAudio(url2, **ffmpeg_options))
+        players[ctx.guild.id] = player  # Store the player in the dictionary
     else:
-        vc = ctx.voice_client
+        await ctx.send("You need to be in a voice channel to use this command.")
 
-    ydl_opts = {'format': 'bestaudio'}
-    with youtube_dl.YoutubeDL(ydl_opts) as ydl:
-        info = ydl.extract_info(url, download=False)
-        url2 = info['formats'][0]['url']
-
-    player = vc.play(discord.FFmpegPCMAudio(url2, **ffmpeg_options))
-    players[ctx.guild.id] = player
 
 keep_alive()
 
