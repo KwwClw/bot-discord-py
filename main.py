@@ -1,6 +1,7 @@
 import os
 import time
 import pytz
+import pynacl
 import asyncio
 import discord
 import youtube_dl
