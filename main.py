@@ -121,8 +121,15 @@ async def play(ctx, url: str):
     # Check if the user who triggered the interaction is in a voice channel
     if ctx.user.voice:
         channel = ctx.user.voice.channel
-        vc = channel.connect()
-        players[ctx.guild.id] = vc  # Store the voice client in the dictionary
+
+        # Check if the bot is already connected to a channel
+        if ctx.guild.id in players:
+            await ctx.send("I'm already playing music in another channel.")
+            return
+
+        # Connect to the voice channel
+        vc = await channel.connect()
+        players[ctx.guild.id] = {'vc': vc, 'player': None}  # Store the voice client and player in the dictionary
 
         # Use youtube_dl to extract information about the video
         ydl_opts = {'format': 'bestaudio'}
@@ -131,8 +138,7 @@ async def play(ctx, url: str):
             url2 = info['formats'][0]['url']
 
         # Create a player and add it to the dictionary
-        player = vc.play(discord.FFmpegPCMAudio(url2, **ffmpeg_options))
-        players[ctx.guild.id] = player  # Store the player in the dictionary
+        players[ctx.guild.id]['player'] = vc.play(discord.FFmpegPCMAudio(url2, **ffmpeg_options))
     else:
         await ctx.send("You need to be in a voice channel to use this command.")
 
