@@ -1,20 +1,24 @@
 import os
 import time
 import pytz
+import asyncio
 import discord
+import youtube_dl
 from dotenv import load_dotenv
 from discord.ext import commands
 from discord import app_commands
 from keep_alive import keep_alive
 from datetime import datetime
 
-bot = commands.Bot(command_prefix='k!', intents=discord.Intents.all())
-
 load_dotenv()
 TOKEN = os.environ.get('TOKEN')
 
-intents = discord.Intents.default()
+intents = discord.Intents.all()
 intents.message_content = True
+
+bot = commands.Bot(command_prefix='k!', intents=intents)
+
+players = {}
 
 @bot.event
 async def on_ready():
@@ -91,17 +95,42 @@ async def helpcommand(interaction):
     helpembed.set_footer(text=formatted_timestamp)
     await interaction.response.send_message(embed=helpembed)
 
+
 @bot.tree.command(name='ping', description='Pong')
 async def ping(interaction):
     start_time = time.time()
+
+    # Simulate network latency with a sleep
+    await asyncio.sleep(1)  # Adjust the duration as needed
+
     end_time = time.time()
     ping_duration = (end_time - start_time) * 1000
 
+    api_ping = bot.latency * 1000  # Discord API ping in milliseconds
+
     pingembed = discord.Embed(
         title='📡 Connection',
-        description=f'Ping is {bot.latency * 1000:.2f} ms\nAPI Ping is {ping_duration:.2f} ms'
+        description=f'Ping is {api_ping:.2f} ms\nAPI Ping is {ping_duration:.2f} ms'
     )
-    await interaction.response.send_message(content='🏓Pong!', embed=pingembed)
+
+    await interaction.response.send_message(content='🏓Pong!', embed=pingembed, ephemeral=True)
+
+@bot.tree.command(name='play', description='play your song')
+async def play(ctx, url):
+    if ctx.voice_client is None:
+        channel = ctx.author.voice.channel
+        vc = await channel.connect()
+        players[ctx.guild.id] = vc
+    else:
+        vc = ctx.voice_client
+
+    ydl_opts = {'format': 'bestaudio'}
+    with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+        info = ydl.extract_info(url, dowload=False)
+        url2 = info['formats'][0]['url']
+
+    player = vc.play(discord.FFmpegPCMAudio(url2, **ffmpeg_options))
+    players[ctx.guild.id] = player
 
 keep_alive()
 
