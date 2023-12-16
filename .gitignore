@@ -7,3 +7,7 @@ pyproject.toml
 .env
 __pycache__/
 replit.txt
+install.sh
+ffmpeg-6.1-amd64-static
+replit.nix
+ffmpeg-release-amd64-static.tar.xz
