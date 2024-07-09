@@ -1,158 +1,118 @@
 import os
-import time
-import pytz
-import nacl
-import asyncio
 import discord
-import youtube_dl
-from dotenv import load_dotenv
 from discord.ext import commands
 from discord import app_commands
-from keep_alive import keep_alive
-from datetime import datetime
 
-load_dotenv()
-TOKEN = os.environ.get('TOKEN')
+from myserver import server_on
 
-intents = discord.Intents.all()
-intents.message_content = True
+bot = commands.Bot(command_prefix='!', intents=discord.Intents.all())
 
-bot = commands.Bot(command_prefix='k!', intents=intents)
 
-players = {}
-ffmpeg_options = {}
 
+# //////////////////// Bot Event /////////////////////////
+# คำสั่ง bot พร้อมใช้งานแล้ว
 @bot.event
 async def on_ready():
-    print(f"Logged in as {bot.user.name}")
+    print("Bot Online!")
+    print("555")
     synced = await bot.tree.sync()
-    if len(synced) <= 1:
-        print(f"{len(synced)} command")
-    else:
-        print(f"{len(synced)} commands")
+    print(f"{len(synced)} command(s)")
+
+
+
+
+# แจ้งคนเข้า -ออกเซิฟเวอร์
 
 @bot.event
-async def on_voice_state_update(member, before, after):
-    notification_channel = bot.get_channel(1184790363337130074)
-    thai_timezone = pytz.timezone('Asia/Bangkok')
-    timestamp_utc = datetime.utcnow()
-    timestamp_thai = timestamp_utc.replace(tzinfo=pytz.utc).astimezone(thai_timezone)
-    formatted_timestamp = timestamp_thai.strftime("%A at %I:%M %p")
+async def on_member_join(member):
+    channel = bot.get_channel(1140633489520205934) # IDห้อง
+    text = f"Welcome to the server, {member.mention}!"
 
-    if notification_channel is None:
-        return
+    emmbed = discord.Embed(title = 'Welcome to the server!',
+                           description = text,
+                           color = 0x66FFFF)
 
-    if before.channel != after.channel:
-        # Member joined or left a voice channel
-        if after.channel is not None:
-            join = discord.Embed(
-                title='Joined',
-                description=f'{member} has joined {after.channel.name}.',
-                color=0x3559E0,
-            )
-            join.set_footer(text=formatted_timestamp)
-            await notification_channel.send(embed=join)
-            # print(formatted_timestamp)
-        elif before.channel is not None:
-            left = discord.Embed(
-                title='Left',
-                description=f'{member} has left {before.channel.name}.',
-                color=0x3559E0,
-            )
-            left.set_footer(text=formatted_timestamp)
-            await notification_channel.send(embed=left)
-            # print(formatted_timestamp)
+    await channel.send(text) # ส่งข้อความไปที่ห้องนี้
+    await channel.send(embed = emmbed)  # ส่ง Embed ไปที่ห้องนี้
+    await member.send(text) # ส่งข้อความไปที่แชทส่วนตัวของ member
 
+
+@bot.event
+async def on_member_remove(member):
+    channel = bot.get_channel(1140633489520205934)  # IDห้อง
+    text = f"{member.name} has left the server!"
+    await channel.send(text)  # ส่งข้อความไปที่ห้องนี้
+
+
+
+# คำสั่ง chatbot
 @bot.event
 async def on_message(message):
-    mes = message.content
+    mes = message.content # ดึงข้อความที่ถูกส่งมา
     if mes == 'hello':
-        await message.channel.send("Hello It's me!")
+        await message.channel.send("Hello It's me") # ส่งกลับไปที่ห้องนั่น
 
     elif mes == 'hi bot':
         await message.channel.send("Hello, " + str(message.author.name))
 
     await bot.process_commands(message)
+    # ทำคำสั่ง event แล้วไปทำคำสั่ง bot command ต่อ
+
+
+
+
+# ///////////////////// Commands /////////////////////
+# กำหนดคำสั่งให้บอท
 
 @bot.command()
 async def hello(ctx):
-    await ctx.send(f"Hello {ctx.author.name}!")
+    await ctx.send(f"hello {ctx.author.name}!")
 
+
+@bot.command()
+async def test(ctx, arg):
+    await ctx.send(arg)
+
+
+# Slash Commands
 @bot.tree.command(name='hellobot', description='Replies with Hello')
 async def hellocommand(interaction):
-    await interaction.response.send_message(f"Hello {interaction.user.name}!")
+    await interaction.response.send_message("Hello It's me BOT DISCORD")
 
-@bot.tree.command(name='help', description='help command')
+
+@bot.tree.command(name='name')
+@app_commands.describe(name = "What's your name?")
+async def namecommand(interaction, name : str):
+    await interaction.response.send_message(f"Hello {name}")
+
+
+# Embeds
+
+@bot.tree.command(name='help', description='Bot Commands')
 async def helpcommand(interaction):
-    thai_timezone = pytz.timezone('Asia/Bangkok')
-    timestamp_utc = datetime.utcnow()
-    timestamp_thai = timestamp_utc.replace(tzinfo=pytz.utc).astimezone(thai_timezone)
-    formatted_timestamp = timestamp_thai.strftime("%A at %I:%M %p")
-
-    helpembed = discord.Embed(
-        title='Help',
-        description='Bot Commands',
-        color=0x3559E0,
-    )
-    helpembed.set_footer(text=formatted_timestamp)
-    await interaction.response.send_message(embed=helpembed)
+    emmbed = discord.Embed(title='Help Me! - Bot Commands',
+                           description='Bot Commands',
+                           color=0x66FFFF,
+                           timestamp= discord.utils.utcnow())
 
 
-@bot.tree.command(name='ping', description='Pong')
-async def ping(interaction):
-    start_time = time.time()
+    # ใส่ข้อมูล
+    emmbed.add_field(name='/hello1', value='Hello Commmand', inline=True)
+    emmbed.add_field(name='/hello2', value='Hello Commmand', inline=True)
+    emmbed.add_field(name='/hello3', value='Hello Commmand', inline=False)
 
-    # Simulate network latency with a sleep
-    await asyncio.sleep(1)  # Adjust the duration as needed
+    emmbed.set_author(name='Author', url='https://www.youtube.com/@maoloop01/channels', icon_url='https://yt3.googleusercontent.com/0qFq3tGT6LVyfLtZc-WCXcV9YyEFQ0M9U5W8qDe36j2xBTN34CJ20dZYQHmBz6aXASmttHI=s900-c-k-c0x00ffffff-no-rj')
 
-    end_time = time.time()
-    ping_duration = (end_time - start_time) * 1000
+    # ใส่รูปเล็ก-ใหญ่
+    emmbed.set_thumbnail(url='https://yt3.googleusercontent.com/0qFq3tGT6LVyfLtZc-WCXcV9YyEFQ0M9U5W8qDe36j2xBTN34CJ20dZYQHmBz6aXASmttHI=s900-c-k-c0x00ffffff-no-rj')
+    emmbed.set_image(url='https://i.ytimg.com/vi/KZRa9DQzUpQ/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLCfWDgiBYjFJtrUasd5yxmQZJG_cg')
 
-    api_ping = bot.latency * 1000  # Discord API ping in milliseconds
+    # Footer เนื้อหาส่วนท้าย
+    emmbed.set_footer(text='Footer', icon_url='https://yt3.googleusercontent.com/0qFq3tGT6LVyfLtZc-WCXcV9YyEFQ0M9U5W8qDe36j2xBTN34CJ20dZYQHmBz6aXASmttHI=s900-c-k-c0x00ffffff-no-rj')
 
-    pingembed = discord.Embed(
-        title='📡 Connection',
-        description=f'Ping is {api_ping:.2f} ms\nAPI Ping is {ping_duration:.2f} ms'
-    )
+    await interaction.response.send_message(embed = emmbed)
 
-    await interaction.response.send_message(content='🏓Pong!', embed=pingembed, ephemeral=True)
 
-@bot.tree.command(name='play', description='Play your song')
-async def play(ctx, url: str):
-    # Check if the user who triggered the interaction is in a voice channel
-    if ctx.user.voice:
-        channel = ctx.user.voice.channel
+server_on()
 
-        # Check if the bot is already connected to a channel
-        if ctx.guild.id in players:
-            await ctx.send("I'm already playing music in another channel.")
-            return
-
-        # Connect to the voice channel
-        vc = await channel.connect()
-        players[ctx.guild.id] = {'vc': vc, 'player': None}  # Store the voice client and player in the dictionary
-
-        # Define ffmpeg_options (adjust as needed)
-        ffmpeg_options = {
-            'options': '-vn',
-            'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5',
-        }
-
-        # Use youtube_dl to extract information about the video
-        ydl_opts = {
-            'format': 'bestaudio',
-            'verbose': True,
-            'extractor': 'youtube'
-        }
-        with youtube_dl.YoutubeDL(ydl_opts) as ydl:
-            info = ydl.extract_info(url, download=False)
-            url2 = info['formats'][0]['url']
-
-        # Create a player and add it to the dictionary
-        players[ctx.guild.id]['player'] = vc.play(discord.FFmpegPCMAudio(url2, **ffmpeg_options))
-    else:
-        await ctx.send("You need to be in a voice channel to use this command.")
-
-keep_alive()
-
-bot.run(TOKEN)
+bot.run(os.getenv('TOKEN'))
